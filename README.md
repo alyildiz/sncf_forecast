@@ -7,18 +7,18 @@ Project Organization
 
 .env : 
 
-API_KEY=xxx
+```API_KEY=xxx
 MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=password
-MONGODB_PORT=27017
+MONGODB_PORT=27017```
 
 /db/.env :
 
-MONGODB_HOST=localhost
+```MONGODB_HOST=localhost```
 
 /modeling/.env :
 
-MONGODB_HOST=dbmongo
+```MONGODB_HOST=dbmongo```
 
 
 ------------
