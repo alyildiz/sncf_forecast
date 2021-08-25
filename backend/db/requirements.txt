@@ -1,0 +1,9 @@
+-e .
+
+pandas
+pymongo
+faker
+tqdm
+pytest
+requests
+finnhub-python

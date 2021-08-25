@@ -1,0 +1,46 @@
+version: '3.7'
+services:
+    dbmongo:
+        container_name: dbmongo 
+        build: 'backend/db'
+        restart: always
+        volumes:
+            - ./backend/db/init:/docker-entrypoint-initdb.d
+            - ./shared:/workdir/shared
+            - ./backend/db/init:/workdir/init
+            - ./backend/modeling/src:/workdir/src
+
+        env_file:
+            - .env
+            - ./backend/db/.env
+    
+    modeling:
+        container_name: modeling 
+        build: 'backend/modeling/'
+        volumes:
+            - ./backend/modeling/bin:/workdir/bin
+            - ./backend/modeling/src:/workdir/src
+            - ./shared:/workdir/shared
+            - ./mlflow/logs:/workdir/logs
+
+
+        command: "tail -f /dev/null"
+        env_file:
+            - .env
+            - ./backend/modeling/.env
+
+    #independent service
+    adminer:
+        image: dockette/adminer:mongo
+        restart: always
+        ports:
+            - 80:80
+
+    mlflow:
+        container_name: mlflow
+        build: 'mlflow/'
+        volumes:
+            - ./mlflow/logs:/workdir/logs
+        ports:
+            - 5000:5000
+        command : "mlflow ui --host 0.0.0.0 --backend-store-uri /workdir/logs/mlruns"
