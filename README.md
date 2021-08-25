@@ -4,6 +4,21 @@ btc_forecast
 ML pipeline to predict btc price over 24h
 
 Project Organization
+
+.env : 
+
+API_KEY=xxx
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=password
+MONGODB_PORT=27017
+
+/db/.env :
+
+MONGODB_HOST=localhost
+
+/modeling/.env :
+
+MONGODB_HOST=dbmongo
 ------------
 
     ├── LICENSE
