@@ -10,7 +10,8 @@ Project Organization
 ```API_KEY=xxx
 MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=password
-MONGODB_PORT=27017```
+MONGODB_PORT=27017
+```
 
 /db/.env :
 
