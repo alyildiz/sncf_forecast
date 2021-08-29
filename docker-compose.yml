@@ -22,7 +22,8 @@ services:
             - ./backend/modeling/src:/workdir/src
             - ./shared:/workdir/shared
             - ./mlflow/logs:/workdir/logs
-
+        ports:
+            - 8888:8888
 
         command: "tail -f /dev/null"
         env_file:
