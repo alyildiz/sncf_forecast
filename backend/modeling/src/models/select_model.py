@@ -1,12 +1,20 @@
+from src.constants import model_config
 from src.models.baseline import Baseline
-from src.models.lstm_model import LSTMModel
+from src.models.tensorflow.autoencoder import Autoencoder
+from src.models.tensorflow.lstm import BasicLSTM
 
 
 def get_model(model_name: str, forecast_size: int, target: list, num_features: int):
     if model_name == "baseline":
         model = Baseline(forecast_size=forecast_size, target=target)
+    elif model_name == "autoencoder":
+        model = Autoencoder(
+            forecast_size=forecast_size, num_features=num_features, model_config=model_config, target=target
+        )
     elif model_name == "lstm":
-        model = LSTMModel(forecast_size=forecast_size, num_features=num_features)
+        model = BasicLSTM(
+            forecast_size=forecast_size, num_features=num_features, model_config=model_config, target=target
+        )
     else:
         raise KeyError("Available model : 'baseline', 'lstm' ")
 

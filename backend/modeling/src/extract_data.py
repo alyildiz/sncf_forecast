@@ -28,6 +28,8 @@ def clean_data(df):
     df_tmp["text_process"] = df_tmp["Text"].apply(lambda x: x.split(" ")[0])
     df_tmp = df_tmp.loc[df_tmp["text_process"] == "Le"]
     df_tmp = extract_text_column(df_tmp)
+    # print('with fill')
+    # df_tmp = manual_fill(df_tmp)
     df_tmp = convert_date_to_datetime(df_tmp)
 
     return df_tmp
@@ -96,3 +98,87 @@ def add_covariates(data, holidays):
     df["nbr_late_trains"] = df["nbr_late_trains"].astype(int)
 
     return df
+
+
+def manual_fill(df):
+    df_tmp = df.copy()
+    dic = {
+        "date": "10-03-2021",
+        "nbr_travels": 17800,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "11-03-2021",
+        "nbr_travels": 17900,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "12-03-2021",
+        "nbr_travels": 18300,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "13-03-2021",
+        "nbr_travels": 12500,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "14-03-2021",
+        "nbr_travels": 11900,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "15-03-2021",
+        "nbr_travels": 17800,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "16-03-2021",
+        "nbr_travels": 17700,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "17-03-2021",
+        "nbr_travels": 17500,
+        "nbr_late_trains": np.nan,
+    }
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "18-03-2021",
+        "nbr_travels": 17800,
+        "nbr_late_trains": np.nan,
+    }
+
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "19-03-2021",
+        "nbr_travels": 18250,
+        "nbr_late_trains": np.nan,
+    }
+
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+
+    dic = {
+        "date": "20-03-2021",
+        "nbr_travels": 12800,
+        "nbr_late_trains": np.nan,
+    }
+
+    df_tmp = df_tmp.append(dic, ignore_index=True)
+    return df_tmp

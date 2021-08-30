@@ -1,22 +1,14 @@
-import os
-
-import finnhub
-import numpy as np
 import pandas as pd
 from pandas.tseries.holiday import (AbstractHolidayCalendar, Easter,
                                     EasterMonday, Holiday)
-from pandas.tseries.offsets import CustomBusinessDay, Day
-
-
-def get_finnhub_client():
-    return finnhub.Client(api_key=os.environ["API_KEY"])
+from pandas.tseries.offsets import Day
 
 
 def build_time_series(data: pd.DataFrame, target: list, window_size: int, forecast_size: int):
     list_x, list_y = [], []
     for i in range(0, data.shape[0] - forecast_size - window_size + 1):
-        x = data[i : i + window_size]
-        y = data[target][i + window_size : i + window_size + forecast_size]
+        x = data[i: i + window_size]
+        y = data[target][i + window_size: i + window_size + forecast_size]
         list_x.append(x)
         list_y.append(y)
     print("# Rolling windows :", len(list_x), "of shape :", list_x[0].shape)
@@ -26,8 +18,8 @@ def build_time_series(data: pd.DataFrame, target: list, window_size: int, foreca
 def split_train_val_test(df: pd.DataFrame, split_size_val: float, split_size_test: float):
     n = len(df)
     train_df = df[: int(n * (1 - split_size_val))]
-    val_df = df[int(n * (1 - split_size_val)) : int(n * (1 - split_size_test))]
-    test_df = df[int(n * (1 - split_size_test)) :]
+    val_df = df[int(n * (1 - split_size_val)): int(n * (1 - split_size_test))]
+    test_df = df[int(n * (1 - split_size_test)):]
     print("Training data shape :", train_df.shape)
     print("Validation data shape :", val_df.shape)
     print("Testing data shape :", test_df.shape, "\n")

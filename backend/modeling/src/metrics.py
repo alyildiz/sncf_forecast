@@ -6,6 +6,7 @@ from sklearn.metrics import (mean_absolute_error,
 
 def compute_metrics(test_y: list, preds: np.ndarray, display: bool = True):
     test_y = np.array([x.values for x in test_y])
+    preds = np.array([x.values for x in preds])
     nsamples, nx, ny = test_y.shape
 
     test_y = test_y.reshape((nsamples, nx * ny))
