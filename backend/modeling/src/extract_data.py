@@ -19,7 +19,7 @@ def load_data_from_db():
     return df
 
 
-def process_data(df, use_covariates, use_manual_fill:bool = False):
+def process_data(df, use_covariates, use_manual_fill: bool = False):
     if use_manual_fill:
         df = manual_fill(df)
     df = convert_date_to_datetime(df)

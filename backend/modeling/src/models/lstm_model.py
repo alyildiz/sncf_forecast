@@ -4,13 +4,14 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-import tensorflow as tf
 from src.models.base_model import BaseModel
 
-tf.random.set_seed(0)
 import mlflow
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+import tensorflow as tf  # noqa: E402
+
+tf.random.set_seed(0)
 
 
 class LSTMModel(BaseModel):

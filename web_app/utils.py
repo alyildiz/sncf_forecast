@@ -1,9 +1,10 @@
-import sqlite3
 from datetime import date, timedelta
 
 import altair as alt
 import pandas as pd
 import streamlit as st
+from src.extract_data import load_data_from_db, process_data
+from src.inference import inference
 
 import mlflow
 
@@ -20,6 +21,28 @@ dic = {
 }
 
 
+def setup_page():
+    alt.renderers.set_embed_options(scaleFactor=2)
+
+    st.set_page_config(layout="wide")
+    st.title("French railways : daily forecast of running trains")
+    st.markdown(
+        """*Check out the github
+        [here](https://github.com/alyildiz/btc_forecast) and the
+        daily data [here](https://twitter.com/sncfisajoke) .*"""
+    )
+
+    st.sidebar.title("Control Panel")
+    # User inputs on the control panel
+    st.sidebar.subheader("Model selection")
+    model_name_webapp = st.sidebar.selectbox(
+        "Choose the model",
+        ["LSTM", "Autoencoder", "Baseline"],
+        help="The forecast is model dependant.",
+    )
+    return model_name_webapp
+
+
 def preload_models(con):
     dic_models = {
         "lstm": {
@@ -34,6 +57,9 @@ def preload_models(con):
                 f'/workdir/artifacts/0/{get_best_model_today("autoencoder", con)}/artifacts/model'
             ),
         },
+        "baseline": {
+            "run_uuid": get_best_model_today("baseline", con),
+        },
     }
     return dic_models
 
@@ -45,7 +71,9 @@ def load_model(model_name, dic_models):
     elif model_name == "Autoencoder":
         run_uuid = dic_models["autoencoder"]["run_uuid"]
         model = dic_models["autoencoder"]["model"]
-
+    elif model_name == "Baseline":
+        run_uuid = dic_models["baseline"]["run_uuid"]
+        model = None
     else:
         raise KeyError("Model not supported")
 
@@ -134,8 +162,80 @@ def plot_train_loss(run_uuid, list_metric, con, area, title):
     area.altair_chart(fig, use_container_width=True)
 
 
+def get_test_metric(run_uuid, con):
+    metrics = pd.read_sql_query("select * from metrics", con)
+    metrics = metrics.loc[metrics["run_uuid"] == run_uuid]
+    test_mape = metrics.loc[metrics["key"] == "test_mape"]["value"].values[0]
+    test_mae = metrics.loc[metrics["key"] == "test_mae"]["value"].values[0]
+    test_mse = metrics.loc[metrics["key"] == "test_mse"]["value"].values[0]
+
+    return str(round(float(test_mape), 2)) + "%", round(float(test_mae), 2), round(float(test_mse), 2)
+
+
+def get_end_time(run_uuid, con):
+    runs = pd.read_sql_query("select * from runs", con)
+    runs = runs.loc[runs["run_uuid"] == run_uuid]
+    end_time = runs["end_time"].values[0]
+
+    return pd.to_datetime(end_time, unit="ms")
+
+
+def plot_timeline(inputs, last_input_day, first_forecast_day, model_name_webapp, area):
+    volume_fig = (
+        alt.Chart(inputs)
+        .encode(alt.X("index:T", title="Days"))
+        .mark_line(color="#ffbb78", size=4, point=True)
+        .encode(
+            y=alt.Y("nbr_travels", axis=alt.Axis(title="Number of trains running", titleColor="#ff7f0e")),
+            color="Labels:O",
+            tooltip=[alt.Tooltip("nbr_travels", title="Number of trains"), alt.Tooltip("index:T", title="Day")],
+        )
+    )
+
+    red_area = pd.DataFrame(
+        data=[
+            [last_input_day, 22000],
+            [first_forecast_day, 22000],
+        ],
+        columns=["date", "nbr_travels"],
+    )
+
+    worst_case_area = alt.Chart(red_area).mark_area(opacity=0.5, color="red").encode(x="date:T", y="nbr_travels:Q")
+
+    fig = alt.layer(volume_fig, worst_case_area).configure_axis(labelFontSize=tick_size, titleFontSize=axis_title_size)
+
+    if st.util.env_util.is_repl():
+        fig.save("nbr_travels_data.svg")
+
+    area.subheader(f"Observed data and forecast using {model_name_webapp}")
+    area.altair_chart(fig, use_container_width=True)
+
+
+def display_metrics(run_uuid, mape, mae, mse, area):
+    area.subheader("Performance over test set")
+
+    area.markdown(f"**MAPE : {mape}**")
+    area.markdown(f"**MAE : {mae}**")
+    area.markdown(f"**MSE : {mse}**")
+    area.markdown(f"[Model configuration](http://localhost:5000/#/experiments/0/runs/{run_uuid})")
+
+
+def get_timeline(model, scaler, window_size):
+    inputs = load_data_from_db()
+    inputs = process_data(inputs, use_covariates=False)
+    inputs = inputs.iloc[-window_size:, :]
+    preds = inference(model, scaler, inputs)
+
+    inputs["Labels"] = "Inputs"
+    last_input_day = inputs.index[-1]
+    preds["Labels"] = "Forecast"
+    first_forecast_day = preds.index[0]
+    inputs = inputs.append(preds)
+    inputs = inputs.reset_index()
+    inputs["nbr_travels"] = inputs["nbr_travels"].apply(lambda x: int(x))
+
+    return inputs, last_input_day, first_forecast_day
+
+
 if __name__ == "__main__":
-    con = sqlite3.connect("/workdir/data/mlflow.db")
-    cursor = con.cursor()
-    # plot_train_loss("e669cbbb4f8545a09e935fd2cad24a24", ["loss", "val_loss"], con, "j")
-    get_model_param("e669cbbb4f8545a09e935fd2cad24a24", con)
+    pass

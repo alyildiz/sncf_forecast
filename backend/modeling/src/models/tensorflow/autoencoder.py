@@ -4,7 +4,7 @@ from src.models.lstm_model import LSTMModel
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-import tensorflow as tf
+import tensorflow as tf  # noqa: E402
 
 
 class Autoencoder(LSTMModel):
