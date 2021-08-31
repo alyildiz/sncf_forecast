@@ -3,18 +3,30 @@ import pandas as pd
 from src.constants import MONTHS_TO_NUMBERS
 from src.utils import FrBusinessCalendar
 
+from shared.db.utils import get_mongo_client
+
 
 def load_data(FILE_PATH):
     df = pd.read_excel(FILE_PATH)
     return df
 
 
-def process_data(df, use_covariates):
-    df = clean_data(df)
+def load_data_from_db():
+    client = get_mongo_client()
+    db = client["sncf"]
+    df = pd.DataFrame(list(db.trains_statistics.find()))
+    df = df.drop(["_id"], axis=1)
+    return df
+
+
+def process_data(df, use_covariates, use_manual_fill:bool = False):
+    if use_manual_fill:
+        df = manual_fill(df)
+    df = convert_date_to_datetime(df)
     df = add_missing_dates(df)
 
-    holidays = FrBusinessCalendar().holidays(start=df.date.min(), end=df.date.max())
     if use_covariates:
+        holidays = FrBusinessCalendar().holidays(start=df.date.min(), end=df.date.max())
         df = add_covariates(df, holidays=holidays)
     df["nbr_travels"] = df["nbr_travels"].astype(int)
     df["nbr_late_trains"] = df["nbr_late_trains"].astype(int)
@@ -28,9 +40,6 @@ def clean_data(df):
     df_tmp["text_process"] = df_tmp["Text"].apply(lambda x: x.split(" ")[0])
     df_tmp = df_tmp.loc[df_tmp["text_process"] == "Le"]
     df_tmp = extract_text_column(df_tmp)
-    # print('with fill')
-    # df_tmp = manual_fill(df_tmp)
-    df_tmp = convert_date_to_datetime(df_tmp)
 
     return df_tmp
 

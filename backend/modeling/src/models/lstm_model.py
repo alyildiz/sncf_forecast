@@ -14,11 +14,14 @@ import mlflow
 
 
 class LSTMModel(BaseModel):
-    def __init__(self, forecast_size, num_features, model_config, target):
+    def __init__(self, forecast_size, num_features, model_config, target, model):
         super().__init__(forecast_size, target)
         self.num_features = num_features
         self.model_config = model_config
-        self.model = self._build_and_compile()
+        if model is None:
+            self.model = self._build_and_compile()
+        else:
+            self.model = model
 
     def fit(
         self,

@@ -8,8 +8,12 @@ import tensorflow as tf
 
 
 class Autoencoder(LSTMModel):
-    def __init__(self, forecast_size, num_features, model_config, target):
-        super().__init__(forecast_size, num_features, model_config, target)
+    def __init__(self, forecast_size=None, num_features=None, model_config=None, target=None, model=None):
+        super().__init__(forecast_size, num_features, model_config, target, model)
+
+    @classmethod
+    def load(cls, model, forecast_size, target):
+        return cls(model=model, forecast_size=forecast_size, target=target)
 
     def _build_and_compile(self):
         model = tf.keras.Sequential(

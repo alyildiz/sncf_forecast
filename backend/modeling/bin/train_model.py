@@ -1,8 +1,9 @@
 import argparse
+import json
 
-from src.constants import (COLUMNS_TO_SCALE, FILE_PATH, FORECAST_SIZE,
-                           NUM_FEATURES, SCALER_NAME, TARGET, WINDOW_SIZE)
-from src.extract_data import load_data, process_data
+from src.constants import (COLUMNS_TO_SCALE, FORECAST_SIZE, NUM_FEATURES,
+                           SCALER_NAME, TARGET, WINDOW_SIZE)
+from src.extract_data import load_data_from_db, process_data
 from src.metrics import compute_metrics
 from src.models.select_model import get_model
 from src.scaler.select_scaler import get_scaler
@@ -24,12 +25,18 @@ def main(model_name):
         mlflow.log_param("columns_to_scale", COLUMNS_TO_SCALE)
         mlflow.log_param("scaler_name", SCALER_NAME)
 
-        df = load_data(FILE_PATH)
-        df = process_data(df, use_covariates=False)
+        df = load_data_from_db()
+        df = process_data(df, use_covariates=False, use_manual_fill=True)
 
         train_df, val_df, test_df = split_train_val_test(df, split_size_val=0.3, split_size_test=0.1)
         scaler = get_scaler(scaler_name=SCALER_NAME, columns_to_scale=COLUMNS_TO_SCALE, target=TARGET)
         train_df = scaler.fit_transform(train_df)
+
+        with open("/tmp/scaler.json", "w") as f:
+            json.dump(scaler.get_config(), f)
+            f.seek(0)  # You cannot close the file as it will be removed. You have to move back to its head
+            mlflow.log_artifact(f.name)
+
         val_df = scaler.transform(val_df)
         test_df = scaler.transform(test_df)
 

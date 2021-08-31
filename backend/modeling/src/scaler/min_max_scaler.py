@@ -3,8 +3,8 @@ from src.scaler.base_scaler import BaseScaler
 
 
 class MinMaxScaler(BaseScaler):
-    def __init__(self, columns_to_scale: list, target: list):
-        super().__init__(columns_to_scale, target)
+    def __init__(self, columns_to_scale: list, target: list, dic: dict = {}):
+        super().__init__(columns_to_scale, target, dic)
 
     def fit_transform(self, data: pd.DataFrame):
         df = data.copy()

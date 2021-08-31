@@ -6,7 +6,7 @@ from pymongo import MongoClient
 
 def get_mongo_client():
     try:
-        print("Connection to client.")
+        print("Connection to database.")
 
         client = MongoClient(
             host=os.environ["MONGODB_HOST"] + ":" + str(os.environ["MONGODB_PORT"]),
@@ -27,14 +27,11 @@ def get_mongo_client():
 
 
 def insert_data(db, data):
-    length = len(data["c"])
-    for i in range(length):
+    for i, row in data.iterrows():
         dic = {
-            "timestamp": data["t"][i],
-            "open": data["o"][i],
-            "close": data["c"][i],
-            "high": data["h"][i],
-            "low": data["l"][i],
-            "volume": data["v"][i],
+            "date": row["date"],
+            "nbr_travels": row["nbr_travels"],
+            "nbr_late_trains": row["nbr_late_trains"],
         }
-        db.price.insert_one(dic)
+        db.trains_statistics.insert_one(dic)
+    print("Insertion done.")

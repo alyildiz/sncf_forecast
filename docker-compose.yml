@@ -1,5 +1,21 @@
 version: '3.7'
 services:
+    web_app:
+        container_name: web_app
+        build: web_app/
+        volumes:
+            - ./web_app/:/workdir/
+            - ./backend/modeling/src:/workdir/src
+            - ./shared:/workdir/shared
+            - ./mlflow/db:/workdir/data
+            - ./mlflow/artifacts:/workdir/artifacts
+        ports:
+            - 8501:8501
+        command: "streamlit run server.py"
+        env_file:
+            - .env
+            - ./web_app/.env
+        
     dbmongo:
         container_name: dbmongo 
         build: 'backend/db'
@@ -7,7 +23,6 @@ services:
         volumes:
             - ./backend/db/init:/docker-entrypoint-initdb.d
             - ./shared:/workdir/shared
-            - ./backend/db/init:/workdir/init
             - ./backend/modeling/src:/workdir/src
 
         env_file:
@@ -31,13 +46,6 @@ services:
             - .env
             - ./backend/modeling/.env
 
-    #independent service
-    adminer:
-        image: dockette/adminer:mongo
-        restart: always
-        ports:
-            - 80:80
-
     mlflow:
         container_name: mlflow
         build: 'mlflow/'
@@ -46,4 +54,5 @@ services:
             - ./mlflow/artifacts:/workdir/artifacts
         ports:
             - 5000:5000
-        command : "mlflow ui --host 0.0.0.0 --backend-store-uri sqlite:///data/mlflow.db --default-artifact-root /artifacts"
+        command : "mlflow ui --host 0.0.0.0 --backend-store-uri sqlite:///data/mlflow.db --default-artifact-root /workdir/artifacts"
+
