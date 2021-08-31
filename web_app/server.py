@@ -23,17 +23,22 @@ scaler = select_scaler_cls(scaler_name, data)
 
 model = select_model_cls(model_name, model, forecast_size, target)
 
-inputs, last_input_day, first_forecast_day = get_timeline(model, scaler, window_size)
-plot_timeline(inputs, last_input_day, first_forecast_day, model_name_webapp, top)
+inputs, preds = get_timeline(model, scaler, window_size)
+plot_timeline(inputs, preds, model_name_webapp, top)
 
-end_time = get_end_time(run_uuid, con)
-
-st.markdown(f"*Model trained on {end_time}*")
-
-left_col, middle_col, right_col = st.columns(3)
-
-plot_train_loss(run_uuid, ["loss", "val_loss"], con, left_col, title="Loss")
-plot_train_loss(run_uuid, ["mean_absolute_error", "val_mean_absolute_error"], con, middle_col, title="MAE")
 
 mape, mae, mse = get_test_metric(run_uuid, con)
-display_metrics(run_uuid, mape, mae, mse, right_col)
+
+if model_name_webapp == "Baseline":
+    st.markdown("*Training not required for Baseline model.*")
+    col = st.columns(1)[0]
+    display_metrics(run_uuid, mape, mae, mse, col)
+else:
+    end_time = get_end_time(run_uuid, con)
+    st.markdown(f"*Model trained on {end_time}*")
+    left_col, middle_col, right_col = st.columns(3)
+
+    plot_train_loss(run_uuid, ["loss", "val_loss"], con, left_col, title="Loss")
+    plot_train_loss(run_uuid, ["mean_absolute_error", "val_mean_absolute_error"], con, middle_col, title="MAE")
+
+    display_metrics(run_uuid, mape, mae, mse, right_col)

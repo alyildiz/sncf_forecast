@@ -180,40 +180,62 @@ def get_end_time(run_uuid, con):
     return pd.to_datetime(end_time, unit="ms")
 
 
-def plot_timeline(inputs, last_input_day, first_forecast_day, model_name_webapp, area):
-    volume_fig = (
-        alt.Chart(inputs)
-        .encode(alt.X("index:T", title="Days"))
-        .mark_line(color="#ffbb78", size=4, point=True)
-        .encode(
-            y=alt.Y("nbr_travels", axis=alt.Axis(title="Number of trains running", titleColor="#ff7f0e")),
-            color="Labels:O",
-            tooltip=[alt.Tooltip("nbr_travels", title="Number of trains"), alt.Tooltip("index:T", title="Day")],
-        )
+def plot_timeline(inputs, preds, model_name_webapp, area):
+    inputs = inputs.reset_index()
+    preds = preds.astype(int).reset_index()
+
+    base = alt.Chart(inputs).transform_calculate(
+        Inputs="'Inputs'",
+        Forecast="'Forecast'",
+    )
+    scale = alt.Scale(domain=["Inputs", "Forecast"], range=["#A7C7E7", "#FFAA33"])
+
+    inputs_plot = base.mark_line(
+        size=4,
+        point={
+            "filled": False,
+            "fill": "white",
+            "size": 64,
+            "color": "#A7C7E7",
+        },
+    ).encode(
+        x=alt.X("date:T", title="Days"),
+        y=alt.Y("nbr_travels", title="Number of trains running"),
+        color=alt.Color("Inputs:N", scale=scale, title=""),
+        tooltip=[alt.Tooltip("nbr_travels", title="Number of trains"), alt.Tooltip("date:T", title="Day")],
     )
 
-    red_area = pd.DataFrame(
-        data=[
-            [last_input_day, 22000],
-            [first_forecast_day, 22000],
-        ],
-        columns=["date", "nbr_travels"],
+    base2 = alt.Chart(preds).transform_calculate(
+        Inputs="'Inputs'",
+        Forecast="'Forecast'",
     )
 
-    worst_case_area = alt.Chart(red_area).mark_area(opacity=0.5, color="red").encode(x="date:T", y="nbr_travels:Q")
+    preds_plot = base2.mark_line(
+        size=4,
+        point={
+            "filled": False,
+            "fill": "white",
+            "size": 64,
+            "color": "#FFAA33",
+        },
+    ).encode(
+        x=alt.X("index:T", title="Day"),
+        y=alt.Y("nbr_travels", title="Number of trains running"),
+        color=alt.Color("Forecast:N", scale=scale, title=""),
+        tooltip=[alt.Tooltip("nbr_travels", title="Number of trains"), alt.Tooltip("index:T", title="Day")],
+    )
 
-    fig = alt.layer(volume_fig, worst_case_area).configure_axis(labelFontSize=tick_size, titleFontSize=axis_title_size)
+    fig = alt.layer(inputs_plot, preds_plot).configure_axis(labelFontSize=tick_size, titleFontSize=axis_title_size)
 
     if st.util.env_util.is_repl():
         fig.save("nbr_travels_data.svg")
 
-    area.subheader(f"Observed data and forecast using {model_name_webapp}")
+    area.subheader(f"Current data and forecast using {model_name_webapp}")
     area.altair_chart(fig, use_container_width=True)
 
 
 def display_metrics(run_uuid, mape, mae, mse, area):
     area.subheader("Performance over test set")
-
     area.markdown(f"**MAPE : {mape}**")
     area.markdown(f"**MAE : {mae}**")
     area.markdown(f"**MSE : {mse}**")
@@ -226,15 +248,7 @@ def get_timeline(model, scaler, window_size):
     inputs = inputs.iloc[-window_size:, :]
     preds = inference(model, scaler, inputs)
 
-    inputs["Labels"] = "Inputs"
-    last_input_day = inputs.index[-1]
-    preds["Labels"] = "Forecast"
-    first_forecast_day = preds.index[0]
-    inputs = inputs.append(preds)
-    inputs = inputs.reset_index()
-    inputs["nbr_travels"] = inputs["nbr_travels"].apply(lambda x: int(x))
-
-    return inputs, last_input_day, first_forecast_day
+    return inputs, preds
 
 
 if __name__ == "__main__":
