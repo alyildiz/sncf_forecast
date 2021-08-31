@@ -1,4 +1,5 @@
-btc_forecast
+sncf_forecast
+outdated
 ==============================
 
 ML pipeline to predict btc price over 24h
