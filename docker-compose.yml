@@ -29,6 +29,19 @@ services:
             - .env
             - ./backend/db/.env
     
+    update:
+        container_name: update 
+        build: 'backend/update'
+        restart: always
+        volumes:
+            - ./shared:/workdir/shared
+            - ./backend/modeling/src:/workdir/src
+            - ./backend/update:/workdir
+        env_file:
+            - .env
+            - ./backend/update/.env
+        command: "tail -f /dev/null"
+    
     modeling:
         container_name: modeling 
         build: 'backend/modeling/'
