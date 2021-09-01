@@ -1,4 +1,5 @@
 import os
+from pprint import pprint as pp
 
 import pandas as pd
 import tweepy
@@ -11,6 +12,7 @@ def main():
     auth = tweepy.OAuthHandler(os.environ["API_KEY"], os.environ["API_KEY_SECRET"])
     auth.set_access_token(os.environ["ACCESS_TOKEN"], os.environ["ACCESS_TOKEN_SECRET"])
     api = tweepy.API(auth)
+    pp(os.environ)
     client = get_mongo_client()
     db = client["sncf"]
 

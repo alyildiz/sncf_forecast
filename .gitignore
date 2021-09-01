@@ -89,3 +89,4 @@ target/
 .mypy_cache/
 
 /mlflow/artifacts
+/logs

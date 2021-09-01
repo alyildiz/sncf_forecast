@@ -219,7 +219,7 @@ def plot_timeline(inputs, preds, model_name_webapp, area):
             "color": "#FFAA33",
         },
     ).encode(
-        x=alt.X("index:T", title="Day"),
+        x=alt.X("index:T", title="Days"),
         y=alt.Y("nbr_travels", title="Number of trains running"),
         color=alt.Color("Forecast:N", scale=scale, title=""),
         tooltip=[alt.Tooltip("nbr_travels", title="Number of trains"), alt.Tooltip("index:T", title="Day")],
