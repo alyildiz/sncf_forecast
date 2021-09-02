@@ -4,12 +4,15 @@ Production ready project : Daily running trains forecast
 An Airflow DAG to collect the latest data available from https://twitter.com/sncfisajoke (this account is a bot that daily posts statistics about the status of the french railway company called SNCF ) and apply deep learning methods to forecast the number of running trains for the next N days.
 
 There are currently 3 models implemented : 2 models are based on the tensorflow framework and the 3rd one is a baseline model. 
-
 The current output of the baseline model is the average value for each day from its input.
-
 
 ![alt text](https://github.com/alyildiz/sncf_forecast/blob/master/web_app/webapp.jpg?raw=true)
 
+About the code 
+-----------
+Each run of ```./backend/modeling/bin/train_model.py``` is saved in the mlflow database.
+
+The web app loads the best LSTM and Autoencoder (and baseline) models that were found right after updating the data in the night. 
 
 
 Environnement Files 
