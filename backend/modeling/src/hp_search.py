@@ -3,6 +3,7 @@ import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import tensorflow as tf  # noqa: E402
 
+# used in the lstm model
 model_config = {
     "gru_neurons": 128,
     "dropout": 0.2,

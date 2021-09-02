@@ -34,7 +34,7 @@ def main(model_name):
 
         with open("/tmp/scaler.json", "w") as f:
             json.dump(scaler.get_config(), f)
-            f.seek(0)  # You cannot close the file as it will be removed. You have to move back to its head
+            f.seek(0)
             mlflow.log_artifact(f.name)
 
         val_df = scaler.transform(val_df)
