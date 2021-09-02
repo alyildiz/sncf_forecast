@@ -14,6 +14,18 @@ Each run of ```./backend/modeling/bin/train_model.py``` is saved in the mlflow d
 
 The web app loads the best LSTM and Autoencoder (and baseline) models that were found right after updating the data in the night. 
 
+```docker-compose up``` to run all containers including Airflow.
+
+```docker exec -it <container_name> bash``` to get inside of a container.
+
+Example :
+
+```
+docker exec -it modeling bash
+python3 /workdir/bin/train_model.py -m lstm
+```
+
+
 
 Environnement Files 
 -----------
