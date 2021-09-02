@@ -1,78 +1,84 @@
-sncf_forecast
-outdated
+Production ready project : Daily running trains forecast
 ==============================
 
-ML pipeline to predict btc price over 24h
+An Airflow DAG to collect the latest data available from https://twitter.com/sncfisajoke (this account is a bot that daily posts statistics about the status of the french railway company called SNCF ) and apply deep learning methods to forecast the number of running trains for the next N days.
 
-Project Organization
+There are currently 3 models implemented : 2 models are based on the tensorflow framework and the 3rd one is a baseline model. 
 
-.env : 
+The current output of the baseline model is the average value for each day from its input.
 
-```API_KEY=xxx
+
+![alt text](https://github.com/alyildiz/sncf_forecast/blob/master/web_app/webapp.jpg?raw=true)
+
+
+
+Environnement Files 
+-----------
+```./.env``` : 
+
+```
 MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=password
 MONGODB_PORT=27017
+AIRFLOW_UID=1000
+AIRFLOW_GID=0
 ```
 
-/db/.env :
+```./backend/db/.env``` :
 
-```MONGODB_HOST=localhost```
+```
+MONGODB_HOST=localhost
+```
 
-/modeling/.env :
+```./backend/modeling/.env``` :
 
-```MONGODB_HOST=dbmongo```
+```
+MONGODB_HOST=dbmongo
+```
 
-![alt text](https://github.com/alyildiz/sncf_forecast/blob/master/web_app/webapp.jpg?raw=true)
+```./backend/update/.env``` :
+
+```
+MONGODB_HOST=dbmongo
+API_KEY=twitter_api_key
+API_KEY_SECRET=twitter_api_key_secret
+ACCESS_TOKEN=twitter_access_token
+ACCESS_TOKEN_SECRET=twitter_access_token_secret
+```
+
+```./web_app/.env``` :
+
+```
+MONGODB_HOST=dbmongo
+```
+
+
+Project Organization 
+-----------
 
 
 ------------
 
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
+    ├── README.md              <- The top-level README for developers using this project.
     │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── backend                <- Source code for use in this project.
+    │   ├── db                 <- Container to run the mongodb database that stores the data from the twitter account
+    │   │
+    │   ├── modeling           <- Modeling container that contains the ML pipeline
+    │   │   ├── bin            <- Contains the training script 
+    │   │   └── src            <- Contains the data loader, scalers, models, ... 
+    │   │
+    │   └── update             <- Update container that contains the update script
     │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
+    ├── dags                   <- Contains the DAG for Airflow
     │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
+    ├── mlflow                 <- Mlflow container that contains the mlflow sqlite database
     │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
+    ├── web_app                <- Web app container 
     │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+    └── tox.ini                <- tox file with settings for running tox; see tox.readthedocs.io
 
 
 --------
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
