@@ -16,6 +16,12 @@ The web app loads the best LSTM and Autoencoder (and baseline) models that were 
 
 ```docker-compose up``` to run all containers including Airflow.
 
+- The mlflow webserver runs on ```localhost:5000```
+- The web_app runs on ```localhost:8501```
+- The airflow webserver runs on ```localhost:8080```
+- The jupyter server from the modeling container runs on ```localhost:8888```
+
+
 ```docker exec -it <container_name> bash``` to get inside of a container.
 
 Example :
